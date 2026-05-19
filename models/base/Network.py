@@ -76,13 +76,16 @@ class MYNET(nn.Module):
         all_data = []
         all_label = []
 
-        for batch in dataloader:
-            data, label = [_.cuda() for _ in batch]
-            data = self.encode(data).detach()
-            all_data.append(data)
-            all_label.append(label)
+        # 🚀 必须加上这行上下文管理器，彻底切断显存缓存！
+        with torch.no_grad():
+            for batch in dataloader:
+                data, label = [_.cuda() for _ in batch]
+                # 即使已经在 eval 模式，加上 .detach() 和 no_grad 也能确保显存不被图缓存占用
+                data = self.encode(data) 
+                all_data.append(data.detach())
+                all_label.append(label)
 
-        # 把所有 batch 的结果拼接成一个大张量 (只会占用几十MB，非常安全)
+        # 把所有 batch 的结果拼接成一个大张量
         data = torch.cat(all_data, dim=0)
         label = torch.cat(all_label, dim=0)
         # ----------------------------------------------
