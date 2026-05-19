@@ -30,7 +30,6 @@ class FSCILTrainer(Trainer):
             self.best_model_dict = deepcopy(self.model.state_dict())
 
     def get_optimizer_base(self):
-
         optimizer = torch.optim.SGD(self.model.parameters(), self.args.lr_base, momentum=0.9, nesterov=True,
                                     weight_decay=self.args.decay)
         if self.args.schedule == 'Step':
@@ -38,6 +37,9 @@ class FSCILTrainer(Trainer):
         elif self.args.schedule == 'Milestone':
             scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=self.args.milestones,
                                                              gamma=self.args.gamma)
+        # 🚀 新增这一段来支持余弦退火
+        elif self.args.schedule == 'Cosine':
+            scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=self.args.epochs_base)
 
         return optimizer, scheduler
 
