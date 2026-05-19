@@ -54,7 +54,8 @@ class ECA_RefConv1d(nn.Module):
 
         nn.init.dirac_(self.convmap1.weight)
         # 赋予微小扰动，打破零梯度僵局
-        nn.init.normal_(self.convmap2.weight, mean=0.0, std=0.01)
+        #nn.init.normal_(self.convmap2.weight, mean=0.0, std=0.01)
+        nn.init.zeros_(self.convmap2.weight)
 
     def get_equivalent_kernel(self):
         origin_weight = self.weight.view(1, self.num_kernels, self.kernel_size)
